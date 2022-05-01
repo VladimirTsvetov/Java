@@ -3,12 +3,15 @@ package ru.gb.gbchat1.database;
 import java.sql.*;
 
 public class JdbcApp {
-    private  Connection connection;
-    private  Statement statement;
+    private  Connection connection = null;
+    private  Statement statement = null;
 
     public  void connect() throws SQLException {
-        this.connection = DriverManager.getConnection("jdbc:sqlite:client.db");
+        this.connection = DriverManager.getConnection("jdbc:sqlite:javadb.db");
         this.statement = connection.createStatement();
+        if(connection == null){
+            System.out.println("Файл базы данных не создан");
+        }
     }
 
     public  void disconnect() {
@@ -29,30 +32,40 @@ public class JdbcApp {
     }
 
     public void createTableEx() throws SQLException {
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS clients (\n" +
+        int res = statement.executeUpdate("CREATE TABLE IF NOT EXISTS clients (\n" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
                 "login TEXT,\n" +
                 "pass TEXT,\n" +
                 "nick TEXT\n" +
                 ");");
+        System.out.println(res);
     }
 
     public void insertUserNickAndPass(String user_login, String user_pass, String user_nick) throws SQLException {
-        statement.executeUpdate("INSERT INTO clients (login, pass, nick) VALUES ('" + user_login + "','"
-            + user_pass + "','" + user_nick + "');");
+        //готовим строку для относительно безопасного запроса
+        String query = "INSERT INTO clients (login,pass,nick) VALUES(?,?,?)";
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setString(1, user_login);
+        ps.setString(2, user_pass);
+        ps.setString(3, user_nick);
+        ps.executeUpdate();
+        ps.close();
+
     }
 
     public ResultSet readUserNickAndPass() throws SQLException {
-        ResultSet rs = statement.executeQuery("SELECT * FROM clients ;");
-            return rs;
+        String query = "SELECT * FROM clients ;";
+        ResultSet rs = statement.executeQuery(query);
+        return rs;
     }
 
     public   void dropTableEx() throws SQLException {
-        statement.executeUpdate("DROP TABLE IF EXISTS clients;");
+        String query = "DROP TABLE IF EXISTS clients;";
+        statement.executeUpdate(query);        
     }
 
-
 }
+
 
 
 
