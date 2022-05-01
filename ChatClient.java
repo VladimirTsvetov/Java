@@ -26,10 +26,11 @@ public class ChatClient {
         Thread trTime = new Thread(()->{
             long time = System.currentTimeMillis(); //запускаем таймер
             while((System.currentTimeMillis() - time) < 120000);
-            //тут хочется добавить всплывающее сообщение, но я пока не умею
-            sendMessage("/end");
-            closeConnection();
-            //System.exit(0);
+            //тут была ошибка. через 2 минуты клиенты вылетали по таймеру. теперь нет :)
+            if(!clientConnectSuccess){
+                sendMessage("/end");
+                closeConnection();
+            }
         });
         trTime.setDaemon(true);
         trTime.start();
