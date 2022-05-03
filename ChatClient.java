@@ -103,7 +103,9 @@ public class ChatClient {
                     final String[] split = msg.split(" ");
                     this.nick = split[1];
                     controller.toggleBoxesVisibility(true);
-                    controller.addMessage("Успешная авторизация под ником " + nick);
+                    //сюда добавляем чтение файла если он есть и выводим в окно клиента
+                    //если истории еще нет, то просим его написать что-то
+                    controller.addMessage("Успешная авторизация под ником " + nick + readChatHistory());
                     clientConnectSuccess = true;
                     break;
                 }
@@ -142,6 +144,37 @@ public class ChatClient {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * чтение из файла истории клиента и выдача ста последних по времени событий
+     * @return String
+     */
+    public String readChatHistory(){
+        File historyFile = new File("history_" + nick + ".txt");
+        if(historyFile.length() == 0L)
+            return "\n Напишите что-нибудь для истории чата \n)";
+        else {
+            try (BufferedReader reader = new BufferedReader(new FileReader(historyFile))) {
+                String str;
+                while ((str = reader.readLine()) != null) {
+                    chatHistory.addLast(str + "\n");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            StringBuilder retString = new StringBuilder("\n История: \n");
+
+            int count = 0;
+            while (chatHistory.peek() != null && count < 100) {
+                retString.append(chatHistory.pop());
+                count++;
+            }
+            return retString.toString();
+
+
         }
     }
 }
