@@ -52,12 +52,18 @@ public class ClientController {
         textField.requestFocus();
     }
 
-    public void addMessage(String s) {
-        messageArea.appendText(s + "\n");
-    }
-
     public void toggleBoxesVisibility(boolean isSuccess) {
         loginBox.setVisible(!isSuccess);
         messageBox.setVisible(isSuccess);
     }
+     /**
+     * передаем в клиент текст и добавляем дату и время
+     * @param s
+     */
+    public void addMessage(String s) {
+        Date date = new Date();
+        messageArea.appendText(s + "\n");
+        client.saveChatHistory(date.toString()+ ": " + s + "\n");            //записываем текст из окна отображения чата
+    }
+
 }
