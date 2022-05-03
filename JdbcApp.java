@@ -69,7 +69,7 @@ public class JdbcApp {
     }
 
     public  void dropTableEx() throws SQLException {
-        ps = connection.prepareStatement("SELECT * FROM clients ;");
+        ps = connection.prepareStatement("DROP TABLE IF EXISTS clients;");
         ps.executeUpdate();
     }
 
