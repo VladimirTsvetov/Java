@@ -1,9 +1,9 @@
 package ru.gb.gbchat1;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class ChatClient {
     private Socket socket;
@@ -11,18 +11,19 @@ public class ChatClient {
     private DataInputStream in;
     private String nick;
     private ClientController controller;
-
+    private volatile boolean clientConnectSuccess;
+    private Deque <String> chatHistory;
     public ChatClient(ClientController controller) {
-
+        this.clientConnectSuccess = false;
         this.controller = controller;
+        chatHistory = new ArrayDeque<>();
     }
+
     public void openConnection() throws IOException {
         socket = new Socket("localhost", 8189);
         in = new DataInputStream(socket.getInputStream());
         out  = new DataOutputStream(socket.getOutputStream());
-        //********************************************************************
-        //вот здесь запускаем поток с отслеживанием времени
-        //проверено на 5000 ms - окно закрывается, гипс снимают, клиент уезжает
+
         Thread trTime = new Thread(()->{
             long time = System.currentTimeMillis(); //запускаем таймер
             while((System.currentTimeMillis() - time) < 120000);
@@ -43,6 +44,7 @@ public class ChatClient {
                 e.getStackTrace();
             }
             finally {
+                writeChatHistory(); //файл будет записан полюбому
                 closeConnection();
             }
         });
@@ -81,6 +83,7 @@ public class ChatClient {
             try{
                 final String msg = in.readUTF();
                 if("/end".equals(msg)){
+                    //writeChatHistory();
                     controller.toggleBoxesVisibility(false);
                     break;
                 }
@@ -101,6 +104,7 @@ public class ChatClient {
                     this.nick = split[1];
                     controller.toggleBoxesVisibility(true);
                     controller.addMessage("Успешная авторизация под ником " + nick);
+                    clientConnectSuccess = true;
                     break;
                 }
             } catch (IOException e) {
@@ -116,4 +120,12 @@ public class ChatClient {
             e.printStackTrace();
         }
     }
-}
+
+    /**
+     * добаление строки из окна клиента
+     * @param msg
+     */
+    public void saveChatHistory(String msg){
+
+        chatHistory.addLast(msg);
+    }
