@@ -1,0 +1,3 @@
+2022-05-24 18:51:28 [pool-1-thread-1] INFO  ru.gb.gbchat1.server.ChatServer - Подключился клиент: nick1
+2022-05-24 18:51:28 [pool-1-thread-1] INFO  ru.gb.gbchat1.server.ChatServer - Messagenick1
+2022-05-24 18:54:09 [pool-1-thread-1] INFO  ru.gb.gbchat1.server.ChatServer - Подключился клиент: nick2
